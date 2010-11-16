@@ -14,7 +14,7 @@ PKG_VERSION = File.read('lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
 
 PKG_FILES = FileList.new
 
-PKG_FILES.add %w{ README NEWS TODO ChangeLog install.rb Rakefile }
+PKG_FILES.add %w{ README NEWS TODO install.rb Rakefile }
 PKG_FILES.add %w{ samples/*.rb }
 PKG_FILES.add %w{ test/*.rb }
 PKG_FILES.add %w{ test/data/* }
@@ -65,7 +65,7 @@ end
 
 Rake::RDocTask.new do |rd|
   rd.main = "README"
-  rd.rdoc_files.add %W{ lib/zip/*.rb README NEWS TODO ChangeLog }
+  rd.rdoc_files.add %W{ lib/zip/*.rb README NEWS TODO }
   rd.options << "-t 'rubyzip documentation' --webcvs http://cvs.sourceforge.net/viewcvs.py/rubyzip/rubyzip/"
 #  rd.options << "--all"
 end

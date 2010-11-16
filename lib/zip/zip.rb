@@ -22,17 +22,17 @@ end
 
 module Zip
 
-  VERSION = '0.9.4'
+  VERSION = '0.9.4' unless defined?(VERSION)
 
-  RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
+  RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i unless defined?(RUBY_MINOR_VERSION)
 
-  RUNNING_ON_WINDOWS = Config::CONFIG['host_os'] =~ /^win|mswin/i 
+  RUNNING_ON_WINDOWS = Config::CONFIG['host_os'] =~ /^win|mswin/i  unless defined?(RUNNING_ON_WINDOWS)
 
   # Ruby 1.7.x compatibility
   # In ruby 1.6.x and 1.8.0 reading from an empty stream returns 
   # an empty string the first time and then nil.
   #  not so in 1.7.x
-  EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST = RUBY_MINOR_VERSION != 7
+  EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST = RUBY_MINOR_VERSION != 7 unless defined?(EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST)
 
   # ZipInputStream is the basic class for reading zip entries in a 
   # zip file. It is possible to create a ZipInputStream object directly, 
@@ -83,7 +83,7 @@ module Zip
     # not a local zip entry header.
     def initialize(filename, offset = 0)
       super()
-      @archiveIO = File.open(filename, "rb")
+      @archiveIO = ::File.open(filename, "rb")
       @archiveIO.seek(offset, IO::SEEK_SET)
       @decompressor = NullDecompressor.instance
       @currentEntry = nil
@@ -843,7 +843,7 @@ module Zip
     end
 
     def get_raw_input_stream(&aProc)
-      File.open(@zipfile, "rb", &aProc)
+      ::File.open(@zipfile, "rb", &aProc)
     end
 
     private
@@ -855,11 +855,11 @@ module Zip
     end
 
     def write_file(destPath, continueOnExistsProc = proc { false })
-      if File.exists?(destPath) && ! yield(self, destPath)
+      if ::File.exists?(destPath) && ! yield(self, destPath)
 	raise ZipDestinationFileExistsError,
 	  "Destination '#{destPath}' already exists"
       end
-      File.open(destPath, "wb") do |os|
+      ::File.open(destPath, "wb") do |os|
         get_input_stream do |is|
           set_extra_attributes_on_path(destPath)
 
@@ -872,9 +872,9 @@ module Zip
     end
     
     def create_directory(destPath)
-      if File.directory? destPath
+      if ::File.directory? destPath
 	return
-      elsif File.exists? destPath
+      elsif ::File.exists? destPath
 	if block_given? && yield(self, destPath)
 	  FileUtils::rm_f destPath
 	else
@@ -891,7 +891,7 @@ module Zip
     def create_symlink(destPath)
       stat = nil
       begin
-        stat = File::lstat(destPath)
+        stat = ::File::lstat(destPath)
       rescue Errno::ENOENT
       end
 
@@ -900,7 +900,7 @@ module Zip
 
       if stat
         if stat.symlink?
-          if File::readlink(destPath) == linkto
+          if ::File::readlink(destPath) == linkto
             return
           else
             raise ZipDestinationFileExistsError,
@@ -914,7 +914,7 @@ module Zip
         end
       end
 
-      File::symlink(linkto, destPath)
+      ::File::symlink(linkto, destPath)
     end
   end
 
@@ -947,7 +947,7 @@ module Zip
     def initialize(fileName)
       super()
       @fileName = fileName
-      @outputStream = File.new(@fileName, "wb")
+      @outputStream = ::File.new(@fileName, "wb")
       @entrySet = ZipEntrySet.new
       @compressor = NullCompressor.instance
       @closed = false
@@ -1173,10 +1173,10 @@ module Zip
       @entrySet[entry.parent_as_string]
     end
 
-    def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
+    def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
       entries.select { 
 	|entry| 
-	File.fnmatch(pattern, entry.name.chomp('/'), flags) 
+	::File.fnmatch(pattern, entry.name.chomp('/'), flags) 
       } 
     end	
 
@@ -1389,8 +1389,8 @@ module Zip
       super()
       @name = fileName
       @comment = ""
-      if (File.exists?(fileName))
-	File.open(name, "rb") { |f| read_from_stream(f) }
+      if (::File.exists?(fileName))
+	::File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
 	@entrySet = ZipEntrySet.new
       else
